@@ -9,6 +9,7 @@ typedef struct Element{
 	Node *node;
 	struct Element *next;
 }Element;
+
 int Hojas(Node *root,int *nLeafs);
 void swap(Node *H, int i, int j);
 void Imprime_Array(int max, Node *H);
