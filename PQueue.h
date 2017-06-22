@@ -31,7 +31,7 @@ void IniciaElemento(Elemento *e,Nodo *n);
 void Encolar(Cola *q,Nodo *n);
 Nodo* Desencolar(Cola *q);
 
-
+int EsHoja(Nodo *n);
 void Cambiar(ColaP *C, int i, int j);
 void ImprimeArray(ColaP *C);
 void ImprimeHeap(ColaP *C);

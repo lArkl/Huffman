@@ -170,3 +170,6 @@ void ImprimeArbol(Nodo *r){
 	}
 }
 
+int EsHoja(Nodo *n){
+    return !(n->izq) && !(n->der) ;
+}
