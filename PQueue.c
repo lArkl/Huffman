@@ -11,7 +11,10 @@ void swap(Node *H, int i, int j){
 void Imprime_Array(int max, Node *H){
 	int i;
 	for(i=0;i<max;i++)
-		printf("%d ",H[i].frec);
+		printf("%d\t",H[i].frec);
+	printf("\n");
+	for(i=0;i<max;i++)
+		printf("%c\t",H[i].letra);
 	printf("\n");
 }
 
@@ -58,7 +61,7 @@ Node Extrae_MinHeap(int *max, Node *H){
 }
 
 void Aumenta_Heap(Node *H, int i, Node n){
-	H[i].frec=n.frec;
+	H[i]=n;
 	while(i>0 && H[(i-1)/2].frec > H[i].frec){
 		swap(H,i,(i-1)/2);
 		i=(i-1)/2;
@@ -87,22 +90,22 @@ void Inicia_Element(Element *e,Node *n){
 	e->next = NULL;
 }
 
-void Apilar(Element *top,Node *n){
+void Apilar(Stack *s,Node *n){
 	Element *e = calloc(1,sizeof(Element));
 	Inicia_Element(e,n);
-	if(top==NULL)
-		top = e;
+	if(s->top==NULL)
+		s->top = e;
 	else{
-		e->next = top;
-		top = e;
+		e->next = s->top;
+		s->top = e;
 	}
 }
 
-Node* Desapilar(Element *top){
-	if(top!=NULL){
-		Node* n=top->node;
-		Element *aux=top;
-		top=top->next;
+Node* Desapilar(Stack *s){
+	if(s->top!=NULL){
+		Node* n=s->top->node;
+		Element *aux=s->top;
+		s->top=s->top->next;
 		free(aux);
 		return n;
 	}else
@@ -110,18 +113,19 @@ Node* Desapilar(Element *top){
 }
 
 int Hojas(Node *root,int *nLeafs){
-	Element *top = NULL;
-	Apilar(top,root);
+	Stack s;
+	s.top = NULL;
+	Apilar(&s,root);
 	int number=0;
-	while(top !=NULL){
-		Node* n=Desapilar(top);
+	while(s.top !=NULL){
+		Node* n=Desapilar(&s);
 		char child=0;
 		if(n->left!=NULL){
-			Apilar(top,n->left);
+			Apilar(&s,n->left);
 			child=1;
 		}	
 		if(n->right!=NULL){
-			Apilar(top,n->right);
+			Apilar(&s,n->right);
 			child=1;
 		}if(child==0){
 			nLeafs[number]=n->frec;
@@ -129,3 +133,18 @@ int Hojas(Node *root,int *nLeafs){
 		}
 	}return number;
 }
+
+void Imprime_Arbol(Node *root){
+	Stack s;
+	s.top = NULL;
+	Apilar(&s,root);
+	while(s.top !=NULL){
+		Node* n = Desapilar(&s);
+		if(n->left!=NULL)
+			Apilar(&s,n->left);
+		if(n->right!=NULL)
+			Apilar(&s,n->right);
+		printf("%d ",n->frec);
+	}
+}
+

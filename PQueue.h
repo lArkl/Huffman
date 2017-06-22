@@ -10,6 +10,10 @@ typedef struct Element{
 	struct Element *next;
 }Element;
 
+typedef struct Stack{
+	Element *top;
+}Stack;
+
 int Hojas(Node *root,int *nLeafs);
 void swap(Node *H, int i, int j);
 void Imprime_Array(int max, Node *H);
@@ -20,3 +24,4 @@ void Crea_Heap(int max,Node *H);
 Node Extrae_MinHeap(int *max, Node *H);
 void Inserta_Heap(int *max, Node *H, Node n);
 void Heap_Sort(int max, Node *H);
+void Imprime_Arbol(Node *root);

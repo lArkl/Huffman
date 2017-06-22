@@ -26,7 +26,7 @@ Node *Copiar_nodo(Node *aux, Node n){
 	aux = calloc(1,sizeof(Node));
 	aux->frec = n.frec;
 	if(n.letra!=-1){
-		printf("%c\n",n.letra);	
+		//printf("%c\n",n.letra);	
 		aux->letra = n.letra;
 	}return aux;
 }
@@ -37,24 +37,28 @@ void Huffman(int max, Node *Cola){
 	Node *aux1;
 	Node *aux2;
 	Node *aux;
-	for(i=max-2; i>0 ; i--){
+	for(i=max-1; i>0 ; i--){
 		n1 = Extrae_MinHeap(&cont,Cola);
 		n2 = Extrae_MinHeap(&cont,Cola);
 		n.frec = n1.frec + n2.frec;
 		n.letra = -1;
 		aux1 = Copiar_nodo(aux1,n1);
+		printf("%c %d\n",aux1->letra,aux1->frec);
 		aux2 = Copiar_nodo(aux2,n2);
 		aux = Copiar_nodo(aux,n);
 		aux->left = aux1;
 		aux->right = aux2;
+		//Imprime_Array(cont, Cola);
 		Inserta_Heap(&cont, Cola, n);
+		//Imprime_Array(cont, Cola);
 	}
-	printf("root: frec=%d\n",aux->left->frec);
 	int Leafs[max];
 	int nLeaf = Hojas(aux,Leafs);
 	printf("frec=%d\n",Leafs[1]);
 	for(i=0;i<nLeaf;i++)
-		printf("%d ",Leafs[i]);	
+		printf("lele %d ",Leafs[i]);
+	//printf("Arbolito\n");
+	//Imprime_Arbol(aux);
 	//Imprime_Heap(max,Cola);
 }
 
