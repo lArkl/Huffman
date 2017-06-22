@@ -3,7 +3,7 @@
 #include<stdlib.h>
 #include "PQueue.h"
 
-int Crear_Cola(char *str, Node *Cola){
+void CrearCola(char *str, ColaP *C){
 	int i; //i es la letra en codigo ASCII
 	int frec[256]={0};
 	for(i=0;str[i]!='\0';i++){
@@ -12,54 +12,59 @@ int Crear_Cola(char *str, Node *Cola){
 	int max=0;
 	for(i = 0; i < 256; i++){
 		if (frec[i]){
-			Cola[max].letra=i;
-			Cola[max].frec=frec[i];
+			C->P[max] = (Nodo *)calloc(1,sizeof(Nodo));
+			IniciarNodo(C->P[max], frec[i], i);
 			max++;
 		}
-	}
-	Heap_Sort(max,Cola);
-	Imprime_Array(max,Cola);
-	return max;
+	}C->max = max;
+	OrdenarHeap(C);
+	ImprimeArray(C);
 }
 
-Node *Copiar_nodo(Node *aux, Node n){
-	aux = calloc(1,sizeof(Node));
-	aux->frec = n.frec;
-	if(n.letra!=-1){
-		//printf("%c\n",n.letra);	
-		aux->letra = n.letra;
-	}return aux;
+void MezclarNodo(Nodo *aux,Nodo *aux1, Nodo *aux2){
+	aux->frec = aux1->frec + aux2->frec;
+	aux->izq = aux1;
+	aux->der = aux2;
+	aux->h = (aux1->h > aux2->h)?aux1->h+1:aux2->h+1;
 }
 
-void Huffman(int max, Node *Cola){
-	Node n1,n2,n;
-	int i,sum,cont=max;
-	Node *aux1;
-	Node *aux2;
-	Node *aux;
-	for(i=max-1; i>0 ; i--){
-		n1 = Extrae_MinHeap(&cont,Cola);
-		n2 = Extrae_MinHeap(&cont,Cola);
-		n.frec = n1.frec + n2.frec;
-		n.letra = -1;
-		aux1 = Copiar_nodo(aux1,n1);
-		printf("%c %d\n",aux1->letra,aux1->frec);
-		aux2 = Copiar_nodo(aux2,n2);
-		aux = Copiar_nodo(aux,n);
-		aux->left = aux1;
-		aux->right = aux2;
-		//Imprime_Array(cont, Cola);
-		Inserta_Heap(&cont, Cola, n);
-		//Imprime_Array(cont, Cola);
+Nodo *Huffman(ColaP *C){
+	int i=0,max=C->max;
+	Nodo *aux1, *aux2,*aux;		
+	for(i = max-1; i>0 ; i--){
+		aux1 = ExtraeMinHeap(C);
+		aux2 = ExtraeMinHeap(C);
+		aux = (Nodo *)calloc(1,sizeof(Nodo));
+		IniciarNodo(aux,0,-1);
+		MezclarNodo(aux,aux1,aux2);
+		InsertaHeap(C, aux);
+	}C->max=max;
+	return aux;
+}
+
+void RutaHuffman(int max, Nodo *r){
+	Cola q;
+	int i=0;
+	char *s[max];
+	q.tope = NULL;
+	q.base = NULL;
+	Encolar(&q,r);
+	Nodo *n;
+	while(q.base !=NULL && q.tope!=NULL){
+		n = Desencolar(&q);
+		int flag=0;
+		if(n->izq!=NULL){
+			Encolar(&q,n->izq);
+			flag++;
+			s[i]=
+		}if(n->der!=NULL){
+			Encolar(&q,n->der);
+			flag++;
+		}if(flag==0){
+			s[i]=
+			i++;
+		}
 	}
-	int Leafs[max];
-	int nLeaf = Hojas(aux,Leafs);
-	printf("frec=%d\n",Leafs[1]);
-	for(i=0;i<nLeaf;i++)
-		printf("lele %d ",Leafs[i]);
-	//printf("Arbolito\n");
-	//Imprime_Arbol(aux);
-	//Imprime_Heap(max,Cola);
 }
 
 
@@ -76,7 +81,8 @@ void main(){
 	}
 	fclose(fp);
 	//calcular frecuencias
-	Node Cola[256];
-	int max = Crear_Cola(str,Cola);
-	Huffman(max,Cola);
+	ColaP C;
+	IniciarCP(&C);
+	CrearCola(str,&C);
+	Nodo *raiz = Huffman(&C);
 }

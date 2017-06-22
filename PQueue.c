@@ -2,30 +2,46 @@
 #include<stdlib.h>
 #include<stdio.h>
 
-void swap(Node *H, int i, int j){
-	Node aux = H[i];
-	H[i] = H[j];
-	H[j] = aux;
+void IniciarNodo(Nodo *n, int frec, char letra){
+	n->h=0;
+	n->frec = frec;
+	n->letra=letra;
+	n->izq=NULL;
+	n->der=NULL;
 }
 
-void Imprime_Array(int max, Node *H){
+void IniciarCP(ColaP *C){
+	C->max=0;
 	int i;
-	for(i=0;i<max;i++)
-		printf("%d\t",H[i].frec);
+	for(i=0;i<256;i++)
+		C->P[i] = NULL;
+}
+
+
+void Cambiar(ColaP *C, int i, int j){
+	Nodo *aux = C->P[i];
+	C->P[i] = C->P[j];
+	C->P[j] = aux;
+}
+
+void ImprimeArray(ColaP *C){
+	int i;
+	for(i=0;i<C->max;i++)
+		printf("%d\t",C->P[i]->frec);
 	printf("\n");
-	for(i=0;i<max;i++)
-		printf("%c\t",H[i].letra);
+	for(i=0;i<C->max;i++)
+		printf("%c\t",C->P[i]->letra);
 	printf("\n");
 }
 
-void Imprime_Heap(int max, Node *H){
+void ImprimeHeap(ColaP *C){
 	int i,cont=1;
 	printf("===================\n");
-	for(i=0;i<max;i++){
+	for(i=0;i<C->max;i++){
 		if(i%2==1)
-			printf("/%d\t",H[i].frec);
+			printf("/%d\t",C->P[i]->frec);
 		else
-			printf("%d\\ \t",H[i].frec);
+			printf("%d\\ \t",C->P[i]->frec);
 		if(cont==i+1){
 			cont=2*cont+1;
 			printf("\n");
@@ -34,117 +50,123 @@ void Imprime_Heap(int max, Node *H){
 }
 
 
-void Arregla_Heap(int max, Node *H, int i){
+void ArreglaHeap(ColaP *C, int i){
 	int min=i;
-	if(2*i+1<max && H[2*i+1].frec!=0 && H[2*i+1].frec<H[i].frec)
+	if(2*i+1<C->max && C->P[2*i+1]->frec!=0 && C->P[2*i+1]->frec<C->P[i]->frec)
 		min = 2*i+1;
-	if(2*i+2<max && H[2*i+2].frec!=0 && H[2*i+2].frec<H[min].frec)
+	if(2*i+2<C->max && C->P[2*i+2]->frec!=0 && C->P[2*i+2]->frec < C->P[min]->frec)
 		min = 2*i+2;
 	if(min!=i){
-		swap(H,i,min);
-		Arregla_Heap(max,H,min);
+		Cambiar(C,i,min);
+		ArreglaHeap(C,min);
 	}
 }
 
-void Crea_Heap(int max,Node *H){
+void CreaHeap(ColaP *C){
 	int i;
-	for(i=max/2;i>=0;i--)
-		Arregla_Heap(max,H,i);
+	for(i=C->max/2;i>=0;i--)
+		ArreglaHeap(C,i);
 }
 
-Node Extrae_MinHeap(int *max, Node *H){
-	Node min = H[0];
-	H[0] = H[*max-1];
-	*max = *max-1;
-	Arregla_Heap(*max,H,0);
+Nodo *ExtraeMinHeap(ColaP *C){
+	Nodo *min = C->P[0];
+	C->P[0] = C->P[C->max-1];
+	C->max = C->max-1;
+	ArreglaHeap(C,0);
 	return min;
 }
 
-void Aumenta_Heap(Node *H, int i, Node n){
-	H[i]=n;
-	while(i>0 && H[(i-1)/2].frec > H[i].frec){
-		swap(H,i,(i-1)/2);
+void AumentaHeap(ColaP *C, int i, Nodo *n){
+	C->P[i] = n;
+	while(i>0 && C->P[(i-1)/2]->frec > C->P[i]->frec){
+		Cambiar(C,i,(i-1)/2);
 		i=(i-1)/2;
 	}
 }
 
-void Inserta_Heap(int *max, Node *H, Node n){
-	*max = *max+1;
+void InsertaHeap(ColaP *C, Nodo *n){
+	C->max = C->max+1;
 	//H[*max-1].frec = 1000;
-	Aumenta_Heap(H,*max-1,n);
+	AumentaHeap(C,C->max-1,n);
 }
 
-void Heap_Sort(int max, Node *H){
-	int i, cont=max;
-	Node G[max];
-	Crea_Heap(max,H);
+void OrdenarHeap(ColaP *C){
+	int i, max=C->max;
+	Nodo *G[max];
+	CreaHeap(C);
 	for(i=0;i<max;i++){
-		G[i] = Extrae_MinHeap(&cont,H);
+		G[i] = ExtraeMinHeap(C);
 	}
-	for(i=0;i<max;i++)
-		H[i]=G[i];
+	for(i=0;i<max;i++){
+		C->P[i]=G[i];
+	}C->max=max;
 }
 
-void Inicia_Element(Element *e,Node *n){
-	e->node = n;
-	e->next = NULL;
+void IniciaElemento(Elemento *e,Nodo *n){
+	e->nodo = n;
+	e->sig = NULL;
 }
 
-void Apilar(Stack *s,Node *n){
-	Element *e = calloc(1,sizeof(Element));
-	Inicia_Element(e,n);
-	if(s->top==NULL)
-		s->top = e;
-	else{
-		e->next = s->top;
-		s->top = e;
+void Encolar(Cola *q,Nodo *n){
+	Elemento *e = calloc(1,sizeof(Elemento));
+	IniciaElemento(e,n);
+	if(q->base==NULL){
+		q->tope = e;
+		q->base = e;
+	}else{
+		q->tope->sig = e;
+		q->tope = e;
 	}
 }
 
-Node* Desapilar(Stack *s){
-	if(s->top!=NULL){
-		Node* n=s->top->node;
-		Element *aux=s->top;
-		s->top=s->top->next;
+Nodo* Desencolar(Cola *q){
+	if(q->base!=NULL){
+		Nodo* n = q->base->nodo;
+		Elemento *aux = q->base;
+		q->base = aux->sig;
 		free(aux);
 		return n;
 	}else
 		return NULL;
 }
 
-int Hojas(Node *root,int *nLeafs){
-	Stack s;
-	s.top = NULL;
-	Apilar(&s,root);
+int Hojas(Nodo *root,int *nLeafs){
+	Cola q;
+	q.tope = NULL;
+	q.base = NULL;
+	Encolar(&q,root);
 	int number=0;
-	while(s.top !=NULL){
-		Node* n=Desapilar(&s);
+	while(q.base !=NULL){
+		Nodo* n = Desencolar(&q);
 		char child=0;
-		if(n->left!=NULL){
-			Apilar(&s,n->left);
+		if(n->izq!=NULL){
+			Encolar(&q,n->izq);
 			child=1;
 		}	
-		if(n->right!=NULL){
-			Apilar(&s,n->right);
+		if(n->der!=NULL){
+			Encolar(&q,n->der);
 			child=1;
 		}if(child==0){
-			nLeafs[number]=n->frec;
+			nLeafs[number]=n->letra;
 			number++;		
 		}
 	}return number;
 }
 
-void Imprime_Arbol(Node *root){
-	Stack s;
-	s.top = NULL;
-	Apilar(&s,root);
-	while(s.top !=NULL){
-		Node* n = Desapilar(&s);
-		if(n->left!=NULL)
-			Apilar(&s,n->left);
-		if(n->right!=NULL)
-			Apilar(&s,n->right);
-		printf("%d ",n->frec);
+void ImprimeArbol(Nodo *r){
+	Cola q;
+	q.tope = NULL;
+	q.base = NULL;
+	Encolar(&q,r);
+	Nodo *n;
+	while(q.base !=NULL && q.tope!=NULL){
+		n = Desencolar(&q);
+		if(n->izq!=NULL)
+			Encolar(&q,n->izq);
+		if(n->der!=NULL){
+			Encolar(&q,n->der);
+		}
+		printf("%d %c\n",n->frec,n->letra);
 	}
 }
 

@@ -1,27 +1,46 @@
-typedef struct Node{
+typedef struct Nodo{
+	int h;
 	char letra;
 	int frec;
-	struct Node *left;
-	struct Node*right;
-} Node;
+	struct Nodo *izq;
+	struct Nodo *der;
+}Nodo;
 
-typedef struct Element{
-	Node *node;
-	struct Element *next;
-}Element;
+typedef struct ColaP{
+	int max;
+	Nodo *P[256];
+}ColaP;
 
-typedef struct Stack{
-	Element *top;
-}Stack;
+typedef struct Elemento{
+	Nodo *nodo;
+	struct Elemento *sig;
+}Elemento;
 
-int Hojas(Node *root,int *nLeafs);
-void swap(Node *H, int i, int j);
-void Imprime_Array(int max, Node *H);
-void Arregla_Heap(int max, Node *H, int i);
-void Imprime_Heap(int max, Node *H);
-void Crea_Heap(int max,Node *H);
+typedef struct Cola{
+	Elemento *tope;
+	Elemento *base;
+}Cola;
 
-Node Extrae_MinHeap(int *max, Node *H);
-void Inserta_Heap(int *max, Node *H, Node n);
-void Heap_Sort(int max, Node *H);
-void Imprime_Arbol(Node *root);
+typedef struct Arbol{
+	Nodo *raiz;
+}Arbol;
+
+void IniciarNodo(Nodo *n, int frec, char letra);
+void IniciarCP(ColaP *C);
+void IniciaElemento(Elemento *e,Nodo *n);
+void Encolar(Cola *q,Nodo *n);
+Nodo* Desencolar(Cola *q);
+
+
+void Cambiar(ColaP *C, int i, int j);
+void ImprimeArray(ColaP *C);
+void ImprimeHeap(ColaP *C);
+void ArreglaHeap(ColaP *C, int i);
+void CreaHeap(ColaP *C);
+Nodo *ExtraeMinHeap(ColaP *C);
+void AumentaHeap(ColaP *C, int i, Nodo *n);
+void InsertaHeap(ColaP *C, Nodo *n);
+void OrdenarHeap(ColaP *C);
+int Hojas(Nodo *root,int *nLeafs);
+
+void ImprimeArbol(Nodo *r);
