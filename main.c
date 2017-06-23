@@ -18,7 +18,7 @@ void CrearCola(char *str, ColaP *C){
 		}
 	}C->max = max;
 	OrdenarHeap(C);
-	ImprimeArray(C);
+	//ImprimeArray(C);
 }
 
 void MezclarNodo(Nodo *aux,Nodo *aux1, Nodo *aux2){
@@ -27,6 +27,26 @@ void MezclarNodo(Nodo *aux,Nodo *aux1, Nodo *aux2){
 	aux->der = aux2;
 	aux->h = (aux1->h > aux2->h)?aux1->h+1:aux2->h+1;
 }
+
+void ImprimeRutaH(Nodo* r, int arr[], int top){
+	if (r->izq){
+		arr[top] = 0;
+  		ImprimeRutaH(r->izq, arr, top + 1);
+	}
+	if (r->der){
+		arr[top] = 1;
+		ImprimeRutaH(r->der, arr, top + 1);
+	}// If this is a leaf node, then it contains one of the input
+	// characters, print the character and its code from arr[]
+	if (EsHoja(r)){
+		printf("%c: ", r->letra);
+		int i;
+		for (i = 0; i < top; ++i)
+			printf("%d", arr[i]);
+		printf("\n");
+	}
+}
+
 
 Nodo *Huffman(ColaP *C){
 	int i=0,max=C->max;
@@ -41,6 +61,16 @@ Nodo *Huffman(ColaP *C){
 	}C->max=max;
 	return ExtraeMinHeap(C);
 }
+
+void CodificacionH(ColaP *C){
+   //  Construct Huffman Tree
+   //int Hojas(Nodo *root,int *nLeafs)
+   Nodo *r = Huffman(C);
+   // Print Huffman codes using the Huffman tree built above
+   int arr[r->h +1], top = 0;
+   ImprimeRutaH(r, arr, top);
+}
+
 /*
 void RutaHuffman(int max, Nodo *r){
 	Cola q;
@@ -67,26 +97,6 @@ void RutaHuffman(int max, Nodo *r){
 	}
 }*/
 
-void ImprimeRutaH(Nodo* r, int arr[], int top){
-	if (r->izq){
-		arr[top] = 0;
-  		ImprimeRutaH(r->izq, arr, top + 1);
-	}
-	if (r->der){
-		arr[top] = 1;
-		ImprimeRutaH(r->der, arr, top + 1);
-	}
-
-	// If this is a leaf node, then it contains one of the input
-	// characters, print the character and its code from arr[]
-	if (EsHoja(r)){
-		printf("%c: ", r->letra);
-		int i;
-		for (i = 0; i < n; ++i)
-			printf("%d", arr[i]);
-		printf("\n");
-	}
-}
 
 void main(){
 	FILE *fp;
@@ -104,7 +114,5 @@ void main(){
 	ColaP C;
 	IniciarCP(&C);
 	CrearCola(str,&C);
-	Nodo *raiz = Huffman(&C);
-	printf("%d",raiz->frec);
-	ImprimeRutaH(Nodo* r, int arr[], int top);
+	CodificacionH(&C);
 }
