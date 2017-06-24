@@ -28,6 +28,9 @@ typedef struct Arbol{
 void IniciarNodo(Nodo *n, int frec, char letra);
 void IniciarCP(ColaP *C);
 void IniciaElemento(Elemento *e,Nodo *n);
+
+void IniciarCola(Cola *q);
+	
 void Encolar(Cola *q,Nodo *n);
 Nodo* Desencolar(Cola *q);
 

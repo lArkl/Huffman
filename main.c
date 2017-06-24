@@ -28,26 +28,6 @@ void MezclarNodo(Nodo *aux,Nodo *aux1, Nodo *aux2){
 	aux->h = (aux1->h > aux2->h)?aux1->h+1:aux2->h+1;
 }
 
-void ImprimeRutaH(Nodo* r, int arr[], int top){
-	if (r->izq){
-		arr[top] = 0;
-  		ImprimeRutaH(r->izq, arr, top + 1);
-	}
-	if (r->der){
-		arr[top] = 1;
-		ImprimeRutaH(r->der, arr, top + 1);
-	}// If this is a leaf node, then it contains one of the input
-	// characters, print the character and its code from arr[]
-	if (EsHoja(r)){
-		printf("%c: ", r->letra);
-		int i;
-		for (i = 0; i < top; ++i)
-			printf("%d", arr[i]);
-		printf("\n");
-	}
-}
-
-
 Nodo *Huffman(ColaP *C){
 	int i=0,max=C->max;
 	Nodo *aux1, *aux2,*aux;		
@@ -59,51 +39,79 @@ Nodo *Huffman(ColaP *C){
 		MezclarNodo(aux,aux1,aux2);
 		InsertaHeap(C, aux);
 	}C->max=max;
-	return ExtraeMinHeap(C);
+	return aux;
 }
 
-void CodificacionH(ColaP *C){
-   //  Construct Huffman Tree
-   //int Hojas(Nodo *root,int *nLeafs)
-   Nodo *r = Huffman(C);
-   // Print Huffman codes using the Huffman tree built above
-   int arr[r->h +1], top = 0;
-   ImprimeRutaH(r, arr, top);
-}
-
-/*
-void RutaHuffman(int max, Nodo *r){
-	Cola q;
-	int i=0;
-	char *s[max];
-	q.tope = NULL;
-	q.base = NULL;
-	Encolar(&q,r);
-	Nodo *n;
-	while(q.base !=NULL && q.tope!=NULL){
-		n = Desencolar(&q);
-		int flag=0;
-		if(n->izq!=NULL){
-			Encolar(&q,n->izq);
-			flag++;
-			//s[i]=
-		}if(n->der!=NULL){
-			Encolar(&q,n->der);
-			flag++;
-		}if(flag==0){
-			//s[i]=
-			i++;
-		}
+void ImprimeRutaH(Nodo* r, char *arr, char **cod,int top){
+	if (r->izq){
+		arr[top] = '0';
+  		ImprimeRutaH(r->izq, arr,cod,top+1);
 	}
-}*/
+	if (r->der){
+		arr[top] = '1';
+		ImprimeRutaH(r->der, arr,cod,top+1);
+	}//Si es hoja almacenamos e imprimimos su valor binario
+	if (EsHoja(r)){
+		printf("%c: ", r->letra);
+		int i;
+		for (i = 0; i < top; ++i){
+			printf("%c", arr[i]);
+			cod[r->letra][i]= arr[i];
+		}//puts(cod[r->letra]);
+		printf("\n");
+	}
+}
 
+void CodificacionH(FILE *f,char *str,ColaP *C){
+   //Guardamos las letras
+   int i;
+   char letras[C->max];
+   //Armamos el arbol de huffman
+   Nodo *r = Huffman(C);
+   // cod sera donde guardaremos la conversion de cada letra
+   char *cod[256];
+   char arr[r->h+1];
+   int top=0;
+   for(i=0;i<256;i++){
+   	cod[i] = calloc(r->h+1,sizeof(char));
+   }
+	printf("===================\n");
+	printf("Tabla de conversion\n");
+	ImprimeRutaH(r, arr, cod,top);
+	printf("===================\n");
+	printf("Codigo generado\n");
+	for(i=0;str[i]!='\0';i++){
+		printf("%s",cod[str[i]]);
+		fprintf(f, "%s",cod[str[i]]);
+	}printf("\n");
+}
+
+void DecodificacionH(char *str,ColaP *C){
+   //Guardamos las letras
+   int i;
+   //char letras[C->max];
+   //Armamos el arbol de huffman
+   Nodo *raiz = C->P[0];
+   Nodo *aux = raiz;
+   printf("\n");
+   for(i=0;str[i]!='\0';i++){
+   	if(str[i]=='0')
+   		aux = aux->izq;
+   	else
+   		aux = aux->der;
+   	if(EsHoja(aux)){
+   		printf("%c",aux->letra);
+   		aux = raiz;
+   	}
+   }printf("\n");
+}
 
 void main(){
 	FILE *fp;
 	char str[4096];
 	fp = fopen("text.txt" , "r");
 	if (fp==NULL) {
-		perror("Error opening file");
+		perror("Error al abrir el archivo");
 		return;
 	}
 	if( fgets (str, 4096, fp)!=NULL ){
@@ -111,8 +119,28 @@ void main(){
 	}
 	fclose(fp);
 	//calcular frecuencias
+	FILE *f = fopen("text.cod", "w");
+	if (f == NULL){
+		printf("Error opening file!\n");
+		exit(1);
+	}
 	ColaP C;
 	IniciarCP(&C);
 	CrearCola(str,&C);
-	CodificacionH(&C);
+	CodificacionH(f,str,&C);
+	fclose(f);
+	
+	fp = fopen("text.cod" , "r");
+	if (fp==NULL) {
+		perror("Error al abrir el archivo");
+		return;
+	}
+	//Lectura para decodificacion
+	if( fgets (str, 4096, fp)!=NULL ){
+		printf("===================\n");
+		printf("Codigo leido\n");
+		puts(str);
+	}
+	fclose(fp);
+	DecodificacionH(str,&C);
 }

@@ -107,6 +107,11 @@ void IniciaElemento(Elemento *e,Nodo *n){
 	e->sig = NULL;
 }
 
+void IniciarCola(Cola *q){
+	q->tope = NULL;
+	q->base = NULL;
+}
+
 void Encolar(Cola *q,Nodo *n){
 	Elemento *e = calloc(1,sizeof(Elemento));
 	IniciaElemento(e,n);
@@ -132,8 +137,7 @@ Nodo* Desencolar(Cola *q){
 
 int Hojas(Nodo *root,int *nLeafs){
 	Cola q;
-	q.tope = NULL;
-	q.base = NULL;
+	IniciarCola(&q);
 	Encolar(&q,root);
 	int number=0;
 	while(q.base !=NULL){
@@ -155,8 +159,7 @@ int Hojas(Nodo *root,int *nLeafs){
 
 void ImprimeArbol(Nodo *r){
 	Cola q;
-	q.tope = NULL;
-	q.base = NULL;
+	IniciarCola(&q);
 	Encolar(&q,r);
 	Nodo *n;
 	while(q.base !=NULL && q.tope!=NULL){
