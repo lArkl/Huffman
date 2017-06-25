@@ -1,3 +1,5 @@
+#include<stdio.h>
+
 typedef struct Nodo{
 	int h;
 	char letra;
@@ -30,9 +32,11 @@ void IniciarCP(ColaP *C);
 void IniciaElemento(Elemento *e,Nodo *n);
 
 void IniciarCola(Cola *q);
-	
 void Encolar(Cola *q,Nodo *n);
 Nodo* Desencolar(Cola *q);
+
+void PreOrden(FILE *f,Nodo *r);
+Nodo *ConstruirArbol(FILE *f, Nodo *r);
 
 int EsHoja(Nodo *n);
 void Cambiar(ColaP *C, int i, int j);

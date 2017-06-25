@@ -157,6 +157,26 @@ int Hojas(Nodo *root,int *nLeafs){
 	}return number;
 }
 
+void PreOrden(FILE *f,Nodo *r){
+	if(r!=NULL){
+		fprintf(f, "%c",r->letra);
+		PreOrden(f,r->izq);
+		PreOrden(f,r->der);
+	}
+}
+
+Nodo *ConstruirArbol(FILE *f, Nodo *r){
+	char c;
+	if ( (c = fgetc(f)) != EOF){
+		r = calloc(1,sizeof(Nodo));
+		IniciarNodo(r, 0, c);
+		r->izq = ConstruirArbol(f,r->izq);
+		r->der = ConstruirArbol(f,r->der);
+	}else{
+		r = NULL;
+	}
+}
+
 void ImprimeArbol(Nodo *r){
 	Cola q;
 	IniciarCola(&q);

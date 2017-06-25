@@ -3,14 +3,19 @@
 #include<stdlib.h>
 #include "PQueue.h"
 
-void CrearCola(char *str, ColaP *C){
-	int i; //i es la letra en codigo ASCII
-	int frec[256]={0};
-	for(i=0;str[i]!='\0';i++){
-		frec[(int)str[i]]++;
+void CrearCola(char **str, int tam,ColaP *C){
+	int i,j=0; //i es la letra en codigo ASCII
+	int frec[128]={0};
+	for(i=0;j<tam && str[j][i]!='\0';i++){
+		printf("%c",str[j][i]);
+		frec[(int)str[j][i]]++;
+		if(i==1023){
+			j++;
+			i=-1;
+		}
 	}
 	int max=0;
-	for(i = 0; i < 256; i++){
+	for(i = 0; i < 128; i++){
 		if (frec[i]){
 			C->P[max] = (Nodo *)calloc(1,sizeof(Nodo));
 			IniciarNodo(C->P[max], frec[i], i);
@@ -62,85 +67,169 @@ void ImprimeRutaH(Nodo* r, char *arr, char **cod,int top){
 	}
 }
 
-void CodificacionH(FILE *f,char *str,ColaP *C){
+int Decimal(char *s){
+	int len = strlen(s);
+	int i,dec=0,base=1;
+	for(i=len-1;i>-1;i--){
+		int val = s[i]=='0'?0:1;
+		dec += val*base;
+		base*=2;
+	}return dec;
+}
+/*
+char *Hex(char *s){
+	int i,len = strlen(s);
+	int i,dec=0,base=1;
+	for(i=len-1;i>-1;i--){
+		int val = s[i]=='0'?0:1;
+		dec += val*base;
+		base*=2;
+	}return dec;
+}*/
+
+char **MemoriaS(char **str,int cont){
+	int i,tam = cont/1024+1;
+	str = calloc(tam,sizeof(char *));
+	for(i=0;i<tam;i++){
+   	str[i] = calloc(1024,sizeof(char));
+	}return str;
+}
+
+void LiberaS(char **str,int cont){
+	int i,tam = cont/1024+1;
+	free(str);
+	for(i=0;i<tam;i++){
+   	free(str[i]);
+	};
+}
+
+void CodificacionH(FILE *f,char **str,int tam,ColaP *C){
    //Guardamos las letras
-   int i;
-   char letras[C->max];
+   int i,j=0;
+   //char *letras[strlen(str)];
    //Armamos el arbol de huffman
    Nodo *r = Huffman(C);
+   //impresion del arbol
+   FILE *fp;
+	fp = fopen("arbol.pre" , "w");
+	if (fp==NULL) {
+		perror("Error al abrir el archivo");
+		return;
+	}
+	PreOrden(fp,r);
+	fclose(fp);
    // cod sera donde guardaremos la conversion de cada letra
-   char *cod[256];
+   char *cod[128];
    char arr[r->h+1];
    int top=0;
-   for(i=0;i<256;i++){
+   for(i=0;i<128;i++){
    	cod[i] = calloc(r->h+1,sizeof(char));
    }
-	printf("===================\n");
+	puts("===================");
 	printf("Tabla de conversion\n");
 	ImprimeRutaH(r, arr, cod,top);
 	printf("===================\n");
 	printf("Codigo generado\n");
-	for(i=0;str[i]!='\0';i++){
-		printf("%s",cod[str[i]]);
-		fprintf(f, "%s",cod[str[i]]);
+	for(i=0;j<tam && str[j][i]!='\0';i++){
+		printf("%s",cod[str[j][i]]);
+		fprintf(f, "%s",cod[str[j][i]]);		
+		if(i==1023){
+			i=-1;
+			j++;
+		}
+		//fprintf(f, "%d",Decimal(cod[str[i]]));
 	}printf("\n");
 }
 
-void DecodificacionH(char *str,ColaP *C){
-   //Guardamos las letras
-   int i;
-   //char letras[C->max];
+void DecodificacionH(char **str,int tam,ColaP *C){
+   int i,j=0;
    //Armamos el arbol de huffman
+   
    Nodo *raiz = C->P[0];
    Nodo *aux = raiz;
-   printf("\n");
-   for(i=0;str[i]!='\0';i++){
-   	if(str[i]=='0')
+   FILE *f;/*FILE *f = fopen("arbol.pre", "r");
+	if (f == NULL){
+		printf("Error al abrir el archivo!\n");
+		exit(1);
+	}
+	Nodo *raiz;
+   raiz = ConstruirArbol(f, raiz);
+	fclose(f);
+	Nodo *aux = raiz;
+	printf("%p\n",raiz->der);*/
+	f = fopen("decod.txt", "w");
+	if (f == NULL){
+		printf("Error al abrir el archivo!\n");
+		exit(1);
+	}
+	puts("===================");
+	puts("Codigo leido");
+	for(i=0;j<tam && str[j][i]!='\0';i++){
+   	if(str[j][i]=='0')
    		aux = aux->izq;
    	else
    		aux = aux->der;
    	if(EsHoja(aux)){
    		printf("%c",aux->letra);
-   		aux = raiz;
+   		//printf("%c",'o');
+   		fprintf(f, "%c",aux->letra);
+			aux = raiz;
    	}
-   }printf("\n");
+   	if(i==1023){
+			j++;
+			i=-1;
+		}
+   }fclose(f);
+   printf("\n");
 }
 
-void main(){
+int Contador(char *nombre){
 	FILE *fp;
-	char str[4096];
-	fp = fopen("text.txt" , "r");
+	fp = fopen(nombre , "r");
+	if (fp==NULL) {
+		perror("Error al abrir el archivo");
+		return -1;
+	}
+	int i,cont=0;
+	char c;
+	while ( (c = fgetc(fp)) != EOF) {
+		cont++;
+   }return cont;
+   fclose(fp);
+}
+
+
+void Leer(char **str, char *nombre, int cont){
+	FILE *fp;
+	fp = fopen(nombre , "r");
 	if (fp==NULL) {
 		perror("Error al abrir el archivo");
 		return;
 	}
-	if( fgets (str, 4096, fp)!=NULL ){
-	  puts(str);
-	}
+	int i;
+	int tam = cont/1024 +1;
+   for(i=0;i<tam;i++)
+		fgets (str[i], 1024, fp);
 	fclose(fp);
+}
+
+void main(){
+	char **str;
+	int cont = Contador("text.txt");
+	str = MemoriaS(str,cont);
+	Leer(str,"text.txt",cont);
 	//calcular frecuencias
-	FILE *f = fopen("text.cod", "w");
+	FILE *f = fopen("text.bin", "w");
 	if (f == NULL){
-		printf("Error opening file!\n");
+		printf("Error al abrir el archivo!\n");
 		exit(1);
 	}
 	ColaP C;
 	IniciarCP(&C);
-	CrearCola(str,&C);
-	CodificacionH(f,str,&C);
+	CrearCola(str,cont/1024+1,&C);
+	CodificacionH(f,str,cont/1024+1,&C);
 	fclose(f);
-	
-	fp = fopen("text.cod" , "r");
-	if (fp==NULL) {
-		perror("Error al abrir el archivo");
-		return;
-	}
-	//Lectura para decodificacion
-	if( fgets (str, 4096, fp)!=NULL ){
-		printf("===================\n");
-		printf("Codigo leido\n");
-		puts(str);
-	}
-	fclose(fp);
-	DecodificacionH(str,&C);
+	Leer(str,"text.bin",cont);
+	DecodificacionH(str,cont/1024+1,&C);
+	LiberaS(str,cont);
 }
