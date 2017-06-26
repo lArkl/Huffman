@@ -1,7 +1,7 @@
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
-#include "Funciones.h"
+#include "Estructuras.h"
 
 void CrearCola(char *nombre, ColaP *C){
 	//Lectura del archivo
@@ -86,12 +86,10 @@ char *Hex(char *s){
 }*/
 
 void CodificacionH(char *nombre, ColaP *C){
-  
-   //Armamos el arbol de huffman
+	//Armamos el arbol de huffman
    Nodo *r = Huffman(C);
    //impresion del arbol
-	FILE *f;
-	f = fopen("arbol.pre" , "w");
+	FILE *f = fopen("arbol.pre" , "w");
 	if (f==NULL) {
 		perror("Error al abrir el archivo");
 		return;
@@ -111,8 +109,7 @@ void CodificacionH(char *nombre, ColaP *C){
 	printf("===================\n");
 	printf("Codigo generado\n");
 	//Leemos el archivo original
-	FILE *fp;
-	fp = fopen(nombre , "r");
+	FILE *fp = fopen(nombre , "r");
 	if (fp==NULL) {
 		perror("Err al abrir el archivo");
 		return;
@@ -125,10 +122,23 @@ void CodificacionH(char *nombre, ColaP *C){
 	while ( (c = fgetc(fp)) != EOF) {
 		printf("%s",cod[c]);
 		fprintf(f,"%s",cod[c]);
-   }
+   }printf("\n");
 	fclose(fp);
 	fclose(f);
-	printf("\n");
+	//Conversion a ascii
+	fp = fopen("text.bin" , "r");
+	char str[8];
+	f = fopen("text.cod" , "w");
+	puts("===================");
+	puts("Texto comprimido");
+	while ( fgets (str, 8, fp)!=NULL) {
+		int dec = Decimal(str);
+		printf("%c",dec);
+		fprintf(f,"%c",dec);
+   }fprintf(f,"%c",-1);
+   printf("\n");
+   fclose(fp);
+   fclose(f);
 }
 
 void DecodificacionH(ColaP *C){

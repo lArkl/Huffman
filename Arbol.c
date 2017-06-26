@@ -1,4 +1,4 @@
-#include "Funciones.h"
+#include "Estructuras.h"
 #include<stdlib.h>
 
 void IniciaElemento(Elemento *e,Nodo *n){
