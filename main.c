@@ -13,6 +13,7 @@ void CrearCola(char *nombre, ColaP *C){
 		perror("Error al abrir el archivo");
 		return;
 	}
+	puts("Texto a comprimir:");
 	while ( (c = fgetc(fp)) != EOF) {
 		printf("%c",c);
 		frec[c]++;
@@ -74,16 +75,14 @@ int Decimal(char *s){
 		base*=2;
 	}return dec;
 }
-/*
-char *Hex(char *s){
-	int i,len = strlen(s);
-	int i,dec=0,base=1;
-	for(i=len-1;i>-1;i--){
-		int val = s[i]=='0'?0:1;
-		dec += val*base;
-		base*=2;
-	}return dec;
-}*/
+
+void Binario(char *str, int c){
+	int i,val;
+	for(i=6;i>=0;i--){
+		str[i] = (c%2==1)?'1':'0';
+		c/=2;
+	}//return str;
+}
 
 void CodificacionH(char *nombre, ColaP *C){
 	//Armamos el arbol de huffman
@@ -107,7 +106,7 @@ void CodificacionH(char *nombre, ColaP *C){
 	printf("Tabla de conversion\n");
 	ImprimeRutaH(r, arr, cod,top);
 	printf("===================\n");
-	printf("Codigo generado\n");
+	printf("Codigo generado:\n");
 	//Leemos el archivo original
 	FILE *fp = fopen(nombre , "r");
 	if (fp==NULL) {
@@ -129,11 +128,11 @@ void CodificacionH(char *nombre, ColaP *C){
 	fp = fopen("text.bin" , "r");
 	char str[8];
 	f = fopen("text.cod" , "w");
-	puts("===================");
-	puts("Texto comprimido");
+	//puts("===================");
+	puts("Texto comprimido!");
 	while ( fgets (str, 8, fp)!=NULL) {
 		int dec = Decimal(str);
-		printf("%c",dec);
+		//printf("%c",dec);
 		fprintf(f,"%c",dec);
    }fprintf(f,"%c",-1);
    printf("\n");
@@ -150,7 +149,7 @@ void DecodificacionH(ColaP *C){
 		exit(1);
 	}
 	Nodo *raiz;
-   raiz = ConstruirArbol(f);
+	raiz = ConstruirArbol(f);
 	fclose(f);
 	Nodo *aux = raiz;
 	//decodificamos
@@ -165,7 +164,7 @@ void DecodificacionH(ColaP *C){
 		exit(1);
 	}
 	puts("===================");
-	puts("Codigo leido");
+	puts("Texto descomprimido:");
 	char c;
 	
 	while ( (c = fgetc(fp)) != EOF) {
@@ -183,14 +182,20 @@ void DecodificacionH(ColaP *C){
    fclose(fp);
 }
 
-void main(){
+void main(int argc, char** argv){
+	//Por defecto compactara el archivo text.txt
+	if(argv[1] == NULL)
+		argv[1]="text";
+	char nombre[strlen(argv[1])+5];
+	strcpy(nombre,argv[1]);
+	strcat(nombre,".txt");
 	
 	ColaP C;
 	IniciarCP(&C);
 	//Calculamos frecuencia y llenamos la cola
-	CrearCola("text.txt",&C);
-	CodificacionH("text.txt",&C);
-	//Leer(str,"text.bin",cont);
+	CrearCola(nombre,&C);
+	CodificacionH(nombre,&C);
+	
 	DecodificacionH(&C);
 
 }

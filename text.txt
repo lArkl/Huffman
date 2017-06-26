@@ -1,2 +1,1 @@
-tomemos esta frase como ejemplo
-asdas
+Multilevel feedback queue scheduler suffers from major issues of scheduling such as starvation for long tasks, fixed number of queues, and static length of time quantum in each queue. These factors directly affect the performance of the scheduler.
