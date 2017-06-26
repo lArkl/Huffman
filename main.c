@@ -74,16 +74,14 @@ int Decimal(char *s){
 		base*=2;
 	}return dec;
 }
-/*
-char *Hex(char *s){
-	int i,len = strlen(s);
-	int i,dec=0,base=1;
-	for(i=len-1;i>-1;i--){
-		int val = s[i]=='0'?0:1;
-		dec += val*base;
-		base*=2;
-	}return dec;
-}*/
+
+void Binario(char *str, int c){
+	int i,val;
+	for(i=6;i>=0;i--){
+		str[i] = (c%2==1)?'1':'0';
+		c/=2;
+	}//return str;
+}
 
 void CodificacionH(char *nombre, ColaP *C){
 	//Armamos el arbol de huffman
@@ -135,14 +133,14 @@ void CodificacionH(char *nombre, ColaP *C){
 		int dec = Decimal(str);
 		printf("%c",dec);
 		fprintf(f,"%c",dec);
-   }fprintf(f,"%c",-1);
+   }//fprintf(f,"%c",-1);
    printf("\n");
    fclose(fp);
    fclose(f);
 }
 
 void DecodificacionH(ColaP *C){
-   int i,j=0;
+   int i;
    //Armamos el arbol de huffman
    FILE *f = fopen("arbol.pre", "r");
 	if (f == NULL){
@@ -150,11 +148,11 @@ void DecodificacionH(ColaP *C){
 		exit(1);
 	}
 	Nodo *raiz;
-   raiz = ConstruirArbol(f);
+	raiz = ConstruirArbol(f);
 	fclose(f);
 	Nodo *aux = raiz;
 	//decodificamos
-	FILE *fp = fopen("text.bin", "r");
+	FILE *fp = fopen("text.cod", "r");
 	if (fp == NULL){
 		printf("Error al abrir el archivo!\n");
 		exit(1);
@@ -167,18 +165,22 @@ void DecodificacionH(ColaP *C){
 	puts("===================");
 	puts("Codigo leido");
 	char c;
-	
+	char str[7];
 	while ( (c = fgetc(fp)) != EOF) {
-		if(c =='0')
-   		aux = aux->izq;
-   	else
-   		aux = aux->der;
-   	if(EsHoja(aux)){
-   		printf("%c",aux->letra);
-   		fprintf(f, "%c",aux->letra);
-			aux = raiz;
-   	}
-   }
+		Binario(str,c);
+		//printf("%s",str);
+		for(i=0;i<7;i++){
+			if(str[i] =='0')
+				aux = aux->izq;
+			else
+				aux = aux->der;
+			if(EsHoja(aux)){
+				printf("%c",aux->letra);
+				fprintf(f, "%c",aux->letra);
+				aux = raiz;
+			}
+		}
+   }printf("\n");
 	fclose(f);
    fclose(fp);
 }
