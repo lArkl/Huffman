@@ -1,4 +1,4 @@
-#include "PQueue.h"
+#include "Funciones.h"
 #include<stdlib.h>
 #include<stdio.h>
 
@@ -48,7 +48,6 @@ void ImprimeHeap(ColaP *C){
 		}
 	}printf("\n");
 }
-
 
 void ArreglaHeap(ColaP *C, int i){
 	int min=i;
@@ -102,97 +101,9 @@ void OrdenarHeap(ColaP *C){
 	}C->max=max;
 }
 
-void IniciaElemento(Elemento *e,Nodo *n){
-	e->nodo = n;
-	e->sig = NULL;
-}
-
-void IniciarCola(Cola *q){
-	q->tope = NULL;
-	q->base = NULL;
-}
-
-void Encolar(Cola *q,Nodo *n){
-	Elemento *e = calloc(1,sizeof(Elemento));
-	IniciaElemento(e,n);
-	if(q->base==NULL){
-		q->tope = e;
-		q->base = e;
-	}else{
-		q->tope->sig = e;
-		q->tope = e;
-	}
-}
-
-Nodo* Desencolar(Cola *q){
-	if(q->base!=NULL){
-		Nodo* n = q->base->nodo;
-		Elemento *aux = q->base;
-		q->base = aux->sig;
-		free(aux);
-		return n;
-	}else
-		return NULL;
-}
-
-int Hojas(Nodo *root,int *nLeafs){
-	Cola q;
-	IniciarCola(&q);
-	Encolar(&q,root);
-	int number=0;
-	while(q.base !=NULL){
-		Nodo* n = Desencolar(&q);
-		char child=0;
-		if(n->izq!=NULL){
-			Encolar(&q,n->izq);
-			child=1;
-		}	
-		if(n->der!=NULL){
-			Encolar(&q,n->der);
-			child=1;
-		}if(child==0){
-			nLeafs[number]=n->letra;
-			number++;		
-		}
-	}return number;
-}
-
-void PreOrden(FILE *f,Nodo *r){
-	if(r!=NULL){
-		fprintf(f, "%c",r->letra);
-		PreOrden(f,r->izq);
-		PreOrden(f,r->der);
-	}
-}
-
-Nodo *ConstruirArbol(FILE *f, Nodo *r){
-	char c;
-	if ( (c = fgetc(f)) != EOF){
-		r = calloc(1,sizeof(Nodo));
-		IniciarNodo(r, 0, c);
-		r->izq = ConstruirArbol(f,r->izq);
-		r->der = ConstruirArbol(f,r->der);
-	}else{
-		r = NULL;
-	}
-}
-
-void ImprimeArbol(Nodo *r){
-	Cola q;
-	IniciarCola(&q);
-	Encolar(&q,r);
-	Nodo *n;
-	while(q.base !=NULL && q.tope!=NULL){
-		n = Desencolar(&q);
-		if(n->izq!=NULL)
-			Encolar(&q,n->izq);
-		if(n->der!=NULL){
-			Encolar(&q,n->der);
-		}
-		printf("%d %c\n",n->frec,n->letra);
-	}
-}
-
-int EsHoja(Nodo *n){
-    return !(n->izq) && !(n->der) ;
+void MezclarNodo(Nodo *aux,Nodo *aux1, Nodo *aux2){
+	aux->frec = aux1->frec + aux2->frec;
+	aux->izq = aux1;
+	aux->der = aux2;
+	aux->h = (aux1->h > aux2->h)?aux1->h+1:aux2->h+1;
 }
