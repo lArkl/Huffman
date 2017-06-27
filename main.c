@@ -131,9 +131,13 @@ void CodificacionH(char *nombre, ColaP *C){
 	//puts("===================");
 	puts("Texto comprimido!");
 	while ( fgets (str, 8, fp)!=NULL) {
-		int dec = Decimal(str);
-		//printf("%c",dec);
-		fprintf(f,"%c",dec);
+		if(strlen(str)==7){
+			fprintf(f,"%c",Decimal(str));
+		}else{
+			int n = strlen(str);
+			for(i=6;i>=0;i--)
+				str[i]=(n-7+i>=0)?str[n-7+i]:0;
+		}
    }fprintf(f,"%c",-1);
    printf("\n");
    fclose(fp);
@@ -153,7 +157,7 @@ void DecodificacionH(ColaP *C){
 	fclose(f);
 	Nodo *aux = raiz;
 	//decodificamos
-	FILE *fp = fopen("text.bin", "r");
+	FILE *fp = fopen("text.cod", "r");
 	if (fp == NULL){
 		printf("Error al abrir el archivo!\n");
 		exit(1);
@@ -164,22 +168,26 @@ void DecodificacionH(ColaP *C){
 		exit(1);
 	}
 	puts("===================");
-	puts("Texto descomprimido:");
+	puts("Codigo leido");
 	char c;
-	
+	char str[7];
 	while ( (c = fgetc(fp)) != EOF) {
-		if(c =='0')
-   		aux = aux->izq;
-   	else
-   		aux = aux->der;
-   	if(EsHoja(aux)){
-   		printf("%c",aux->letra);
-   		fprintf(f, "%c",aux->letra);
-			aux = raiz;
-   	}
-   }
+		Binario(str,c);
+		//printf("%s",str);
+		for(i=0;i<7;i++){
+			if(str[i] =='0')
+				aux = aux->izq;
+			else
+				aux = aux->der;
+			if(EsHoja(aux)){
+				printf("%c",aux->letra);
+				fprintf(f, "%c",aux->letra);
+				aux = raiz;
+			}
+		}
+   }printf("\n");
 	fclose(f);
-   fclose(fp);
+	fclose(fp);
 }
 
 void main(int argc, char** argv){
